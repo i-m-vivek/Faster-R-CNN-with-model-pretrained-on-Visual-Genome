@@ -46,7 +46,7 @@ from model.utils.blob import im_list_to_blob
 from model.faster_rcnn.vgg16 import vgg16
 from model.faster_rcnn.resnet import resnet
 import pdb
-
+import pickle
 try:
     xrange          # Python 2
 except NameError:
@@ -159,7 +159,7 @@ def _get_image_blob(im):
 def load_image_ids(file_name, im_dir):
     ''' Load a list of (path,image_id tuples). Modify this to suit your data locations. '''
     split = []
-    with open(filename, "wb") as f:
+    with open(filename, "rb") as f:
          ff = pickle.load(f)
     for name, idx in ff.items():
       split.append((os.path.join(im_dir, name), idx))
