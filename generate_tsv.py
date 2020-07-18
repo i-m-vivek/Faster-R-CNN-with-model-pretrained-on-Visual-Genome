@@ -87,6 +87,9 @@ def parse_args():
     parser.add_argument('--image_dir', dest='image_dir',
                         help='directory to load images',
                         default="images")
+    parser.add_argument('--img2idx_file', dest='img2idx',
+                        help='file to load images and their index',
+                        default="img2idx.pkl")
     parser.add_argument('--classes_dir', dest='classes_dir',
                         help='directory to load object classes for classification',
                         default="data/genome/1600-400-20")
@@ -153,32 +156,36 @@ def _get_image_blob(im):
   return blob, np.array(im_scale_factors)
 
 #build [image_path, image_id] for dataset, and you can create your own
-def load_image_ids(split_name):
+def load_image_ids(file_name, im_dir):
     ''' Load a list of (path,image_id tuples). Modify this to suit your data locations. '''
     split = []
-    if split_name == 'coco_test2014':
-      with open('/data/coco/annotations/image_info_test2014.json') as f:
-        data = json.load(f)
-        for item in data['images']:
-          image_id = int(item['id'])
-          filepath = os.path.join('/data/test2014/', item['file_name'])
-          split.append((filepath,image_id))
-    elif split_name == 'coco_test2015':
-      with open('/data/coco/annotations/image_info_test2015.json') as f:
-        data = json.load(f)
-        for item in data['images']:
-          image_id = int(item['id'])
-          filepath = os.path.join('/data/test2015/', item['file_name'])
-          split.append((filepath,image_id))
-    elif split_name == 'genome':
-      with open('/data/visualgenome/image_data.json') as f:
-        for item in json.load(f):
-          image_id = int(item['image_id'])
-          filepath = os.path.join('/data/visualgenome/', item['url'].split('rak248/')[-1])
-          split.append((filepath,image_id))
-    else:
-      print ('Unknown split')
+    with open(filename, "wb") as f:
+         ff = pickle.load(f)
+    for name, idx in ff.items():
+      split.append((os.path.join(im_dir, name), idx))
     return split
+#     if split_name == 'coco_test2014':
+#       with open('/data/coco/annotations/image_info_test2014.json') as f:
+#         data = json.load(f)
+#         for item in data['images']:
+#           image_id = int(item['id'])
+#           filepath = os.path.join('/data/test2014/', item['file_name'])
+#           split.append((filepath,image_id))
+#     elif split_name == 'coco_test2015':
+#       with open('/data/coco/annotations/image_info_test2015.json') as f:
+#         data = json.load(f)
+#         for item in data['images']:
+#           image_id = int(item['id'])
+#           filepath = os.path.join('/data/test2015/', item['file_name'])
+#           split.append((filepath,image_id))
+#     elif split_name == 'genome':
+#       with open('/data/visualgenome/image_data.json') as f:
+#         for item in json.load(f):
+#           image_id = int(item['image_id'])
+#           filepath = os.path.join('/data/visualgenome/', item['url'].split('rak248/')[-1])
+#           split.append((filepath,image_id))
+#     else:
+#       print ('Unknown split')
 
 def get_detections_from_im(fasterRCNN, classes, im_file, image_id, args, conf_thresh=0.2):
     """obtain the image_info for each image,
@@ -449,7 +456,7 @@ if __name__ == '__main__':
     print('Called with args:')
     print(args)
 
-    # image_ids = load_image_ids(args.data_split)
-    image_ids = [['images/img1.jpg', 0], ['images/img2.jpg', 1]]
+    image_ids = load_image_ids(args.img2idx, args.image_dir)
+#     image_ids = [['images/img1.jpg', 0], ['images/img2.jpg', 1]]
 
     generate_tsv(args.outfile, image_ids, args)
