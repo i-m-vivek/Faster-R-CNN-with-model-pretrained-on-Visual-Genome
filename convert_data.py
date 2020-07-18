@@ -1,7 +1,7 @@
 """Convert image features from bottom up attention to numpy array"""
 
 # Example
-# python convert_data.py --imgid_list 'img_id.txt' --input_file 'test.csv' --output_file 'test.npy'
+# python convert_data.py --imgid_dict 'img2idx.pkl' --input_file 'test.csv' --output_file 'test.npy'
 
 import os
 import base64
@@ -10,17 +10,17 @@ import sys
 import zlib
 import json
 import argparse
-
+import pickle
 import numpy as np
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--imgid_list', default='data/coco_precomp/train_ids.txt',
-                    help='Path to list of image id')
+parser.add_argument('--imgid_dict', default='img2idx.pkl',
+                    help='Path to dict of image id')
 parser.add_argument('--input_file', default='/media/data/kualee/coco_bottom_up_feature/trainval_36/trainval_resnet101_faster_rcnn_genome_36.tsv',
                     help='tsv of all image data (output of bottom-up-attention/tools/generate_tsv.py), \
                     where each columns are: [image_id, image_w, image_h, num_boxes, boxes, features].')
-parser.add_argument('--output_file', default='test.npy',
+parser.add_argument('--output_file', default='talk2car.npy',
                     help='Output file path. the file saved in npy format')
 
 opt = parser.parse_args()
@@ -29,10 +29,13 @@ print(opt)
 
 meta = []
 feature = {}
-for line in open(opt.imgid_list):
-    sid = int(line.strip())
-    meta.append(sid)
-    feature[sid] = None
+with open(opt.imgid_dict, "rb") as f:
+    ff = pickle.load(f)
+
+for name, idx in ff.items():
+    # sid = int(line.strip())
+    meta.append(idx)
+    feature[idx] = None
 
 csv.field_size_limit(sys.maxsize)
 FIELDNAMES = ['image_id', 'image_w', 'image_h', 'num_boxes', 'boxes', 'features']
