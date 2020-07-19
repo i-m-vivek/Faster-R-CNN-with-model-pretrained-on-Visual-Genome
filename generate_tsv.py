@@ -156,7 +156,7 @@ def _get_image_blob(im):
   return blob, np.array(im_scale_factors)
 
 #build [image_path, image_id] for dataset, and you can create your own
-def load_image_ids(file_name, im_dir):
+def load_image_ids(filename, im_dir):
     ''' Load a list of (path,image_id tuples). Modify this to suit your data locations. '''
     split = []
     with open(filename, "rb") as f:
